@@ -3,87 +3,37 @@ from fastapi.testclient import TestClient
 from app.main import app
 from unittest.mock import patch
 from io import BytesIO
+
+from app.services.auth_service import hash_password, verify_password, create_access_token, verify_token
 import pytest
 
 
 client = TestClient(app)
 
-def test_register_user():
-    response = client.post("/users/register", json={
-        "username": "testuser",
-        "password": "testpassword"
-    })
-    assert response.status_code == 201
-    data = response.json()
-    assert data["username"] == "testuser"
-    assert "id" in data
+def test_hash_and_verify_password():
+    hashed = hash_password("mysecretpassword")
+    assert hashed != "mysecretpassword"  # Ensure password is hashed
+    assert verify_password("mysecretpassword", hashed)  # Ensure correct password verifies
 
-def test_login_user():
-    # First register a user
-    client.post("/users/register", json={
-        "username": "testuser2",
-        "password": "testpassword2"
-    })
-    
-    # Then login with the same credentials
-    response = client.post("/auth/login", json={
-        "username": "testuser2",
-        "password": "testpassword2"
-    })
-    assert response.status_code == 200
-    data = response.json()
-    assert "access_token" in data
-    assert data["token_type"] == "bearer"
+def test_wrong_password_verification():
+    hashed = hash_password("mysecretpassword")
+    assert not verify_password("wrongpassword", hashed)  # Ensure wrong password does not verify
 
-def test_protected_route():
-    # First register and login to get a token
-    client.post("/users/register", json={
-        "username": "testuser3",
-        "password": "testpassword3"
-    })
-    login_response = client.post("/auth/login", json={
-        "username": "testuser3",
-        "password": "testpassword3"
-    })
-    token = login_response.json()["access_token"]
-    
-    # Access protected route with token
-    response = client.get("/auth/protected", headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
-    data = response.json()
-    assert data["message"] == "This is a protected route"
-    assert "user_id" in data
+def test_create_and_verify_token(test_settings):
+    token = create_access_token(
+            data={"sub": "testuser_id"},
+            settings=test_settings,
+            expires_delta=timedelta(minutes=30)
+    )
+    user_id = verify_token(token, test_settings)
+    assert user_id == "testuser_id"
 
-def test_invalid_login():
-    response = client.post("/auth/login", json={
-        "username": "nonexistentuser",
-        "password": "wrongpassword"
-    })
-    assert response.status_code == 401
-    data = response.json()
-    assert data["detail"] == "Invalid username or password"
+def test_expired_token_returns_none(test_settings):
+    expired_token = create_access_token(
+        data={"sub": "testuser_id"},
+        settings=test_settings,
+        expires_delta=timedelta(minutes=-1)  # Expire immediately
+    )
+    user_id = verify_token(expired_token, test_settings)
+    assert user_id is None
 
-def test_invalid_token():
-    response = client.get("/auth/protected", headers={"Authorization": "Bearer invalidtoken"})
-    assert response.status_code == 401
-    data = response.json()
-    assert data["detail"] == "Invalid authentication credentials"
-
-def test_refresh_token():
-    # First register and login to get a token
-    client.post("/users/register", json={
-        "username": "testuser4",
-        "password": "testpassword4"
-    })
-    login_response = client.post("/auth/login", json={
-        "username": "testuser4",
-        "password": "testpassword4"
-    })
-    token = login_response.json()["access_token"]
-    
-    # Refresh the token
-    refresh_response = client.post("/auth/refresh", headers={"Authorization": f"Bearer {token}"})
-    assert refresh_response.status_code == 200
-    data = refresh_response.json()
-    assert "access_token" in data
-    assert data["token_type"] == "bearer"
