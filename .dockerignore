@@ -1,0 +1,49 @@
+# Version Control
+.git
+.gitignore
+
+# Docker Build Configuration
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Local Environment & Secrets
+.env
+.env.*
+*.local
+secrets.txt
+
+# Editor / IDE Files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+
+# Common Log Directories
+logs
+*.log
+npm-debug.log*
+
+# Node / JavaScript (Omit if not using JS)
+node_modules/
+.npm/
+dist/
+build/
+.next/
+
+# Python (Omit if not using Python)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+env/
+
+#tests
+tests/
