@@ -12,7 +12,11 @@ def test_encrypt_same_input_different_output():
     encrypted2 = encrypt_data(plaintext)
     assert encrypted1 != encrypted2  # Ensure that encrypting the same plaintext produces different ciphertexts
 
+# Test that decrypting an invalid ciphertext raises a ValueError
 def test_decrypt_invalid_data():
     import pytest
     with pytest.raises(ValueError):
         decrypt_data("invalid-ciphertext")
+
+
+        

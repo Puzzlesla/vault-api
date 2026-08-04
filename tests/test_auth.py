@@ -3,23 +3,26 @@ from fastapi.testclient import TestClient
 from app.main import app
 from unittest.mock import patch
 from io import BytesIO
+from datetime import timedelta
 
 from app.services.auth_service import hash_password, verify_password, create_access_token, verify_token
 import pytest
 
 
 client = TestClient(app)
-
+# Test for password hashing and verification
 def test_hash_and_verify_password():
     hashed = hash_password("mysecretpassword")
     assert hashed != "mysecretpassword"  # Ensure password is hashed
     assert verify_password("mysecretpassword", hashed)  # Ensure correct password verifies
 
+# Test for token creation and verification
 def test_wrong_password_verification():
     hashed = hash_password("mysecretpassword")
     assert not verify_password("wrongpassword", hashed)  # Ensure wrong password does not verify
 
 def test_create_and_verify_token(test_settings):
+    # Create a token and verify it returns the correct user ID
     token = create_access_token(
             data={"sub": "testuser_id"},
             settings=test_settings,
@@ -29,6 +32,7 @@ def test_create_and_verify_token(test_settings):
     assert user_id == "testuser_id"
 
 def test_expired_token_returns_none(test_settings):
+    # Create an expired token and verify it returns None
     expired_token = create_access_token(
         data={"sub": "testuser_id"},
         settings=test_settings,
