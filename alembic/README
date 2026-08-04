@@ -1,1 +1,15 @@
-Generic single-database configuration.
+This project uses Alembic to manage database schema migrations for PostgreSQL.
+
+1. When deploying, make sure your migrations are up to date by running:
+
+    docker compose exec web alembic upgrade head
+
+2. Whenever you modify your SQLAlchemy models (app/db/models.py), generate a new migration script automatically:
+
+    docker compose exec web alembic revision --autogenerate -m "describe_your_changes_here"
+
+3. Rolling Back a Migration
+
+    docker compose exec web alembic downgrade -1
+
+4. Our automated test suite (pytest) uses an in-memory SQLite database (sqlite:///:memory:) that builds models dynamically via Base.metadata.create_all(bind=engine). Therefore, Alembic migrations are primarily targeted toward the live PostgreSQL environment.
