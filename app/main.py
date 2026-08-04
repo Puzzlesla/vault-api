@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +18,7 @@ from app.utils.exceptions import (
 
 verify_env()
 
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # Lifespan
 @asynccontextmanager
@@ -27,8 +29,6 @@ async def lifespan(app: FastAPI):
     
     yield # App runs here
     
-    # Shutdown logic
-    # Close database connection, cleanup resources, etc.
     pass
 
 
@@ -46,7 +46,7 @@ app.include_router(notes.router)
 # Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Update with your frontend URL
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
