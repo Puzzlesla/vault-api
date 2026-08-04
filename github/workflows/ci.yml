@@ -28,17 +28,31 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           ALGORITHM: HS256
+          RESET_SECRET_KEY: ${{ secrets.RESET_SECRET_KEY }}
+          RESET_ALGORITHM: HS256
           ACCESS_TOKEN_EXPIRE_MINUTES: 30
           AES_MASTER_KEY: ${{ secrets.AES_MASTER_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SMTP_SERVER: "smtp.testserver.com"
+          SMTP_PORT: 587
+          SMTP_USER: "testuser"
+          SMTP_PASSWORD: "testpassword"
+          MAIL_FROM: "test@example.com"
         run: |
-          python -m app.utils.env_check
+          python -m app.utils.env_verify
 
       - name: Run tests
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           ALGORITHM: HS256
+          RESET_SECRET_KEY: ${{ secrets.RESET_SECRET_KEY }}
+          RESET_ALGORITHM: HS256
           ACCESS_TOKEN_EXPIRE_MINUTES: 30
           AES_MASTER_KEY: ${{ secrets.AES_MASTER_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SMTP_SERVER: "smtp.testserver.com"
+          SMTP_PORT: 587
+          SMTP_USER: "testuser"
+          SMTP_PASSWORD: "testpassword"
+          MAIL_FROM: "test@example.com"
         run: pytest tests/ -v
