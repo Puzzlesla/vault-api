@@ -7,7 +7,7 @@ from app.core.config import get_settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-
+# Dependency to get the current authenticated user based on the JWT token
 def get_current_user(token: str = Depends(oauth2_scheme), settings = Depends(get_settings)) -> str:
     user_id = verify_token(token, settings)
     if user_id is None:

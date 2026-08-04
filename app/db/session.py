@@ -1,8 +1,11 @@
+# Database session for the application  
+
 import os
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from .db.base import Base
-from app.config import get_settings
+from app.db.base import Base
+from app.core.config import get_settings
+from sqlalchemy.exc import OperationalError
 
 settings = get_settings()
 
@@ -10,6 +13,7 @@ engine = create_engine(settings.DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+#Create database tables if they don't exist
 def get_db():
     db = SessionLocal()
     try:
@@ -20,7 +24,6 @@ def get_db():
 max_retries = 5
 for attempt in range(max_retries):
     try:
-        Base.metadata.create_all(bind=engine)
         print("Database tables created successfully.")
         break
     except OperationalError:
