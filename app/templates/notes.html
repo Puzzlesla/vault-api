@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}My Notes — Vault{% endblock %}
+
+{% block content %}
+   <main class="dashboard-main">
+        <div class="welcome-message">
+            <h1>Welcome, <span id="username-display">User</span>!</h1>
+            <p>Welcome to your personal note vault! Here you can create, view, and manage your notes securely.</p>
+        </div>
+
+        <div class="notes-container">
+            
+            <div class="create-note">
+                <div class="form-group">
+                    <h2>New Note</h2>
+                </div>
+                
+                <form id="create-form">
+                    <div class="form-group">
+                        <input type="text" id="title" placeholder="Title" required maxlength="200">
+                    </div>
+                    <div class="form-group">
+                    <textarea id="body" placeholder="Write a new note. Your notes are private and can only be accessed by you...." required maxlength="50000"></textarea>
+                    </div>
+                    <div class="form-actions">
+                    <button type="button" id="save-note-btn">Save Note</button>
+                    </div>
+                </form>
+                <div id="create-message"></div>
+            </div>
+            <div class="notes-header">
+                <h2>My Notes</h2>
+            </div>
+            <div id="notes-list">
+                <p>Loading notes...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const token = sessionStorage.getItem("token");
+
+        if (!token) {
+            window.location.href = "/login";
+            return;
+        }
+
+        const authHeaders = { "Authorization": `Bearer ${token}` };
+
+        // 1. Fetch current user info to display their username
+        try {
+            const userRes = await fetch("/users/me", { headers: authHeaders });
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                document.getElementById("username-display").textContent = userData.username;
+            } else if (userRes.status === 401) {
+                sessionStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
+        } catch (e) {
+            console.error("Failed to load user profile", e);
+        }
+
+        // 2. Load Notes
+        loadNotes();
+
+        document.getElementById("save-note-btn").addEventListener("click", createNote);
+
+        async function loadNotes() {
+            let res;
+            try {
+                res = await fetch("/notes/", { headers: authHeaders });
+            } catch (e) {
+                console.error("Network error loading notes:", e);
+                return;
+            }
+
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return;
+            }
+
+            let notes = await res.json();
+            const container = document.getElementById("notes-list");
+
+            if (!Array.isArray(notes) || notes.length === 0) {
+                container.innerHTML = "<p>No notes yet. Create one above.</p>";
+                return;
+            }
+
+            container.innerHTML = notes.map(note => `
+                <div class="note-card" id="note-${note.id}">
+                    <h3>${escapeHtml(note.title)}</h3>
+                    <p>${escapeHtml(note.body)}</p>
+                    <small>${new Date(note.created_at).toLocaleDateString()}</small>
+                    <button onclick="deleteNote('${note.id}')">Delete</button>
+                </div>
+            `).join("");
+        }
+
+        async function createNote() {
+            const title = document.getElementById("title").value;
+            const body = document.getElementById("body").value;
+            const msg = document.getElementById("create-message");
+
+            if (!title || !body) {
+                msg.textContent = "Title and body are required.";
+                msg.style.color = "red";
+                return;
+            }
+
+            const res = await fetch("/notes/", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ title, body })
+            });
+
+            if (res.ok) {
+                document.getElementById("title").value = "";
+                document.getElementById("body").value = "";
+                msg.textContent = "Note saved.";
+                msg.style.color = "green";
+                loadNotes();
+            } else {
+                let errorText = "Failed to save note.";
+                try {
+                    const error = await res.json();
+                    errorText = Array.isArray(error.detail)
+                        ? error.detail.map(e => e.msg).join(", ")
+                        : error.detail || errorText;
+                } catch {
+                    errorText = `Server error (${res.status}) — check terminal logs`;
+                }
+                msg.textContent = errorText;
+                msg.style.color = "red";
+            }
+        }
+
+        async function deleteNote(noteId) {
+            const res = await fetch(`/notes/${noteId}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                document.getElementById(`note-${noteId}`).remove();
+                const container = document.getElementById("notes-list");
+                if (!container.querySelector(".note-card")) {
+                    container.innerHTML = "<p>No notes yet. Create one above.</p>";
+                }
+            } else {
+                console.error("Failed to delete note:", res.status);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.appendChild(document.createTextNode(text));
+            return div.innerHTML;
+        }
+
+        window.deleteNote = deleteNote;
+
+        loadNotes();
+    });
+    </script>
+{% endblock %}

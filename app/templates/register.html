@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Register — Vault{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Create an account</h1>
+
+    <form id="register-form">
+        
+        <!-- First & Last Name side-by-side row -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" required minlength="1" maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" required minlength="1" maxlength="100">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required minlength="3" maxlength="50">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required minlength="8" maxlength="128">
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" required minlength="8" maxlength="128">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Register</button>
+        </div>
+    </form>
+
+    <div id="message"></div>
+    <p>Already have an account? <a href="/login">Login</a></p>
+</div>
+
+<script>
+document.getElementById("register-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("Form submission intercepted!"); // Check if this logs
+
+    const firstname = document.getElementById("first_name").value;
+    const lastname = document.getElementById("last_name").value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+    const msg = document.getElementById("message");
+
+    console.log("Captured values:", { firstname, lastname, username, email });
+
+    if (password !== confirmPassword) {
+        msg.textContent = "Passwords do not match.";
+        msg.style.color = "#c0392b";
+        return;
+    }
+
+    try {
+        const res = await fetch("/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                first_name: firstname, 
+                last_name: lastname, 
+                username, 
+                email, 
+                password 
+            })
+        });
+
+        console.log("Response status:", res.status);
+        const data = await res.json();
+        console.log("Response body:", data);
+
+        if (res.ok) {
+            window.location.href = "/login";
+        } else {
+            msg.style.color = "#c0392b";
+            msg.textContent = Array.isArray(data.detail)
+                ? data.detail.map(err => err.msg).join(", ")
+                : data.detail || "Registration failed";
+        }
+    } catch (err) {
+        console.error("Fetch error:", err);
+    }
+});
+</script>
+{% endblock %}

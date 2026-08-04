@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vault API{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <script src="{{ url_for('static', path='js/htmx.min.js') }}"></script>
+</head>
+<body>
+    <nav>
+        <a href="/" class="nav-brand">Vault Secure</a>
+        <div id="nav-links">
+            <div id="nav-auth">
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            </div>
+            <div id="nav-user" style="display:none;">
+                <a href="/notes">My Notes</a>
+                <a href="/settings">Settings</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+        
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+        <div class="email-footer">
+            <p>&copy; 2026 Vault. All rights reserved.</p>
+        </div>
+    <script>
+        function updateNav() {
+            const token = sessionStorage.getItem("token");
+            const authNav = document.getElementById("nav-auth");
+            const userNav = document.getElementById("nav-user");
+            if (token) {
+                authNav.style.display = "none";
+                userNav.style.display = "flex";
+            } else {
+                authNav.style.display = "flex";
+                userNav.style.display = "none";
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        window.logout = logout;
+
+        updateNav();
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
