@@ -32,8 +32,17 @@ def verify_database_url() -> None:
     db_url = getattr(settings, "DATABASE_URL", None)
     if not db_url:
         raise ValueError("DATABASE_URL is not set in environment variables.")
+        #Change to sqlite for testing purposes
     if not db_url.startswith("postgresql://"):
         raise ValueError("DATABASE_URL must start with 'postgresql://'. Current value: {db_url}")
+
+def verify_reset_secret_key() -> None:
+    settings = get_settings()
+    reset_secret_key = getattr(settings, "RESET_SECRET_KEY", None)
+    if not reset_secret_key:
+        raise ValueError("RESET_SECRET_KEY is not set in environment variables.")
+    if len(reset_secret_key) < 32:
+        raise ValueError("RESET_SECRET_KEY must be at least 32 characters long for security reasons." f" Current length: {len(reset_secret_key)}")
 
 def verify_aes_key() -> None:
     settings = get_settings()
