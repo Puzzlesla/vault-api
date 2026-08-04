@@ -87,3 +87,15 @@ pylintrc
 # ==========================================
 .DS_Store
 Thumbs.db
+
+# ==========================================
+# Alembic Migrations
+# ==========================================
+
+# Ignore compiled python bytecode within migrations
+alembic/__pycache__/
+migrations/__pycache__/
+
+*.db
+*.sqlite3
+*.sqlite
