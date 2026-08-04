@@ -31,6 +31,7 @@
         </div>
     <script>
         function updateNav() {
+            // Check if a token exists in sessionStorage to determine if the user is logged in
             const token = sessionStorage.getItem("token");
             const authNav = document.getElementById("nav-auth");
             const userNav = document.getElementById("nav-user");
@@ -43,6 +44,7 @@
             }
         }
 
+        // Logout function to clear the token and redirect to login page
         function logout() {
             sessionStorage.removeItem("token");
             window.location.href = "/login";

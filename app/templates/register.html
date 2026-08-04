@@ -51,10 +51,10 @@
 </div>
 
 <script>
+// Get input values, pass them to the register endpoint, and handle the response
 document.getElementById("register-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("Form submission intercepted!"); // Check if this logs
-
+    
     const firstname = document.getElementById("first_name").value;
     const lastname = document.getElementById("last_name").value;
     const username = document.getElementById("username").value;
@@ -62,8 +62,6 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
     const msg = document.getElementById("message");
-
-    console.log("Captured values:", { firstname, lastname, username, email });
 
     if (password !== confirmPassword) {
         msg.textContent = "Passwords do not match.";

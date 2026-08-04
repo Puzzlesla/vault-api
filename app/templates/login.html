@@ -16,7 +16,7 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
         </div>
-
+        <div id="message"></div>
         <div class="form-actions">
             <button type="submit">Login</button>
         </div>
@@ -29,24 +29,25 @@
     <p class="register-link">
         Don't have an account? <a href="/register">Register</a>
     </p>
+    
 </div>
-<div id="message"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-
+        // Get the username and password input values
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const msg = document.getElementById("message");
 
+        // Send a POST request to the login endpoint
         const res = await fetch("/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password })
         });
-
+        // Handle the response from the login endpoint
         if (res.ok) {
             const data = await res.json();
             sessionStorage.setItem("token", data.access_token);

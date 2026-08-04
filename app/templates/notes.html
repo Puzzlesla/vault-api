@@ -40,8 +40,8 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", async function () {
+        // Check if the user is logged in
         const token = sessionStorage.getItem("token");
-
         if (!token) {
             window.location.href = "/login";
             return;
@@ -49,7 +49,7 @@
 
         const authHeaders = { "Authorization": `Bearer ${token}` };
 
-        // 1. Fetch current user info to display their username
+        // Fetch current user info to display their username
         try {
             const userRes = await fetch("/users/me", { headers: authHeaders });
             if (userRes.ok) {
@@ -64,7 +64,7 @@
             console.error("Failed to load user profile", e);
         }
 
-        // 2. Load Notes
+        //Load Notes
         loadNotes();
 
         document.getElementById("save-note-btn").addEventListener("click", createNote);
@@ -72,6 +72,7 @@
         async function loadNotes() {
             let res;
             try {
+                // Fetch notes from the server
                 res = await fetch("/notes/", { headers: authHeaders });
             } catch (e) {
                 console.error("Network error loading notes:", e);
@@ -82,7 +83,7 @@
                 window.location.href = "/login";
                 return;
             }
-
+            // Handle other errors
             let notes = await res.json();
             const container = document.getElementById("notes-list");
 
@@ -90,7 +91,7 @@
                 container.innerHTML = "<p>No notes yet. Create one above.</p>";
                 return;
             }
-
+            // Render notes
             container.innerHTML = notes.map(note => `
                 <div class="note-card" id="note-${note.id}">
                     <h3>${escapeHtml(note.title)}</h3>
@@ -100,8 +101,9 @@
                 </div>
             `).join("");
         }
-
+        // Create Note
         async function createNote() {
+            // Get the title and body input values
             const title = document.getElementById("title").value;
             const body = document.getElementById("body").value;
             const msg = document.getElementById("create-message");
@@ -111,7 +113,7 @@
                 msg.style.color = "red";
                 return;
             }
-
+            // Send a POST request to create a new note
             const res = await fetch("/notes/", {
                 method: "POST",
                 headers: {
@@ -120,7 +122,7 @@
                 },
                 body: JSON.stringify({ title, body })
             });
-
+            // Handle the response from the create note endpoint
             if (res.ok) {
                 document.getElementById("title").value = "";
                 document.getElementById("body").value = "";
@@ -141,7 +143,7 @@
                 msg.style.color = "red";
             }
         }
-
+        // Delete Note
         async function deleteNote(noteId) {
             const res = await fetch(`/notes/${noteId}`, {
                 method: "DELETE",
@@ -158,7 +160,7 @@
                 console.error("Failed to delete note:", res.status);
             }
         }
-
+        // Escape HTML to prevent XSS
         function escapeHtml(text) {
             const div = document.createElement("div");
             div.appendChild(document.createTextNode(text));
