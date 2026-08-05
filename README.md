@@ -47,8 +47,6 @@ Python 3.10+
 
 4. Running Tests
    
-     Change ```app/utils/env_verify.py/verify_database_url``` to sqlite:// as indicated in comment
-
      Run
     
        pytest tests/ -v
