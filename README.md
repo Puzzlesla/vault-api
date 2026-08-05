@@ -1,8 +1,8 @@
-# Vault — Secure Notes API
+# Vault Secure – Notes API
 
 Link: <https://myvaultsecure.up.railway.app>
 
-Vault is a containerized, full-stack backend application designed to securely manage encrypted user notes.
+Vault Secure is a containerized, full-stack backend application designed to securely manage encrypted user notes.
 
 Built with FastAPI, PostgreSQL, Docker, and SQLAlchemy
 
