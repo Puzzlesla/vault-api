@@ -15,25 +15,25 @@ def home(request: Request):
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html", {"error": "..."})
 
 @router.get("/register", response_class=HTMLResponse)
 def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(request, "register.html", {"request": request})
 
 @router.get("/notes", response_class=HTMLResponse)
 def notes_page(request: Request):
-    return templates.TemplateResponse("notes.html", {"request": request})
+    return templates.TemplateResponse(request, "notes.html", {"request": request})
     
 @router.get("/settings", response_class=HTMLResponse)
 def settings_page(request: Request):
-    return templates.TemplateResponse("settings.html", {"request": request})
+    return templates.TemplateResponse(request, "settings.html", {"request": request})
 
 @router.get("/forgot-password", response_class=HTMLResponse)
 def forgot_password_page(request: Request):
-    return templates.TemplateResponse("forgot_password.html", {"request": request})
+    return templates.TemplateResponse(request, "forgot_password.html", {"request": request})
 
 @router.get("/reset-password", response_class=HTMLResponse)
 def reset_password_page(request: Request):
-    return templates.TemplateResponse("password_reset.html", {"request": request})
+    return templates.TemplateResponse(request, "password_reset.html", {"request": request})
 
