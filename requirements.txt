@@ -11,3 +11,4 @@ httpx
 alembic
 jinja2
 python-multipart
+cryptography>=41.0.0
